@@ -1,0 +1,25 @@
+export const featureConfig = {
+  ecommerce: true,
+  cart: true,
+  checkout: true,
+  onlinePayments: false,
+  pickupOrdering: true,
+  deliveryOrdering: true,
+  menuSearch: true,
+  dietaryFilters: true,
+  tableReservation: false,
+  appointments: false,
+  quoteRequests: false,
+  contactForm: true,
+  testimonials: false, // Geen fictieve reviews, enkel officiële Google score badge
+  googleReviewsBadge: true,
+  faq: true,
+  portfolio: false,
+  team: false,
+  blog: false,
+  authentication: true,
+  admin: true,
+  newsletter: false,
+  analytics: false,
+  map: true
+};
