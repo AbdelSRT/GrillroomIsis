@@ -10,12 +10,14 @@ export const AdminLogin = ({ onLoginSuccess, onNavigate }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Default PIN: 1234 or admin
-    if (pin === '1234' || pin.toLowerCase() === 'admin' || pin.length >= 4) {
+    // Gebruik de pincode uit .env, of val terug op '1234' als deze niet is ingesteld
+    const correctPin = import.meta.env.VITE_ADMIN_PIN || '1234';
+    
+    if (pin === correctPin) {
       localStorage.setItem('isis_admin_auth', 'true');
       onLoginSuccess();
     } else {
-      setError('Ongeldige toegangscode. (Voor demo: voer 1234 of admin in)');
+      setError('Ongeldige toegangscode.');
     }
   };
 
