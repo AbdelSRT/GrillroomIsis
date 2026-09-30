@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, Clock, MapPin, Phone, ArrowRight, ShoppingBag, Utensils } from 'lucide-react';
+import { CheckCircle2, Clock, MapPin, Phone, ArrowRight, ShoppingBag, Utensils, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { siteConfig } from '../config/siteConfig';
-import { getOrders } from '../lib/dataStore';
+import { getOrderById } from '../lib/dataStore';
 import { formatCurrency, formatDate } from '../lib/formatters';
 import { updatePageSEO } from '../lib/seo';
 
@@ -17,18 +17,13 @@ export const OrderConfirmationPage = ({ onNavigate }) => {
 
     const loadOrder = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const orderId = urlParams.get('orderId');
+      const rawOrderId = urlParams.get('orderId');
 
-      const orders = await getOrders();
-      if (orderId) {
-        const found = orders.find(o => o.id === orderId);
+      if (rawOrderId) {
+        const found = await getOrderById(rawOrderId);
         if (found) {
           setOrder(found);
-        } else if (orders.length > 0) {
-          setOrder(orders[0]);
         }
-      } else if (orders.length > 0) {
-        setOrder(orders[0]);
       }
       setLoading(false);
     };
@@ -40,6 +35,25 @@ export const OrderConfirmationPage = ({ onNavigate }) => {
     return (
       <div className="section container text-center" style={{ padding: '6rem 0' }}>
         <p>Bestelgegevens ophalen...</p>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="section section-light" style={{ minHeight: '80vh', paddingTop: '4rem' }}>
+        <div className="container text-center" style={{ maxWidth: '600px' }}>
+          <Card hoverEffect={false} style={{ padding: '3rem 2rem' }}>
+            <AlertCircle size={48} color="var(--color-accent-dark)" style={{ margin: '0 auto 1.5rem auto' }} />
+            <h2 style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>Bestelling Niet Gevonden</h2>
+            <p style={{ color: 'var(--color-muted)', marginBottom: '2rem' }}>
+              We konden geen actieve bestelling vinden met het opgegeven ordernummer. Heeft u vragen over uw bestelling? Neem dan gerust telefonisch contact met ons op via {siteConfig.contact.phone}.
+            </p>
+            <Button variant="accent" onClick={() => onNavigate('/')}>
+              Terug naar Homepagina
+            </Button>
+          </Card>
+        </div>
       </div>
     );
   }
