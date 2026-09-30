@@ -1,5 +1,5 @@
 import React from 'react';
-import { UtensilsCrossed, ClipboardList, Layers, Settings, LogOut, ExternalLink, Flame } from 'lucide-react';
+import { UtensilsCrossed, ClipboardList, Layers, Settings, LogOut, ExternalLink, Flame, KeyRound } from 'lucide-react';
 import { siteConfig } from '../../config/siteConfig';
 
 export const AdminLayout = ({ currentPath, onNavigate, onLogout, children }) => {
@@ -7,7 +7,8 @@ export const AdminLayout = ({ currentPath, onNavigate, onLogout, children }) => 
     { label: "Bestellingen", path: "/admin/orders", icon: ClipboardList },
     { label: "Menukaart Beheren", path: "/admin/menu", icon: UtensilsCrossed },
     { label: "Categorieën", path: "/admin/categories", icon: Layers },
-    { label: "Instellingen", path: "/admin/settings", icon: Settings }
+    { label: "Instellingen", path: "/admin/settings", icon: Settings },
+    { label: "Wachtwoord & Beveiliging", path: "/admin/security", icon: KeyRound }
   ];
 
   return (

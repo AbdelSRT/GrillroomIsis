@@ -22,7 +22,7 @@ if (fs.existsSync(envPath)) {
 }
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('\x1b[31m[FOUT] VITE_SUPABASE_URL of VITE_SUPABASE_ANON_KEY ontbreekt in .env\x1b[0m');
+  console.error('\x1b[31m[FOUT] VITE_SUPABASE_sURL of VITE_SUPABASE_ANON_KEY ontbreekt in .env\x1b[0m');
   process.exit(1);
 }
 

@@ -19,6 +19,7 @@ import { AdminDishForm } from '../pages/admin/AdminDishForm';
 import { AdminOrdersPage } from '../pages/admin/AdminOrdersPage';
 import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
 import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage';
+import { AdminSecurityPage } from '../pages/admin/AdminSecurityPage';
 
 export const renderRoute = ({
   path,
@@ -54,6 +55,8 @@ export const renderRoute = ({
       adminContent = <AdminCategoriesPage onNavigate={onNavigate} />;
     } else if (cleanPath === '/admin/settings') {
       adminContent = <AdminSettingsPage onNavigate={onNavigate} />;
+    } else if (cleanPath === '/admin/security') {
+      adminContent = <AdminSecurityPage onNavigate={onNavigate} />;
     }
 
     return (

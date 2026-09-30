@@ -429,6 +429,56 @@ export const getOrders = async () => {
   return stored ? JSON.parse(stored) : initialOrders;
 };
 
+export const getOrderById = async (orderId) => {
+  if (!orderId) return null;
+  const safeId = String(orderId).trim().replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!safeId) return null;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*, order_items(*)')
+        .or(`order_number.eq.${safeId},id.eq.${safeId}`)
+        .maybeSingle();
+
+      if (!error && data) {
+        return {
+          id: data.order_number || data.id,
+          customerName: data.customer_name,
+          phone: data.phone,
+          email: data.email,
+          orderType: data.order_type,
+          pickupTime: data.pickup_time,
+          address: data.delivery_address,
+          notes: data.notes,
+          paymentMethod: data.payment_method,
+          paymentStatus: data.payment_status,
+          paymentId: data.payment_id,
+          status: data.status,
+          subtotal: parseFloat(data.subtotal),
+          deliveryFee: parseFloat(data.delivery_fee || 0),
+          total: parseFloat(data.total),
+          createdAt: data.created_at,
+          items: (data.order_items || []).map(oi => ({
+            id: oi.dish_id,
+            name: oi.dish_name,
+            price: parseFloat(oi.price),
+            quantity: oi.quantity,
+            selectedOptions: oi.options || {}
+          }))
+        };
+      }
+    } catch (err) {
+      console.warn("Supabase getOrderById error:", err);
+    }
+  }
+
+  const stored = localStorage.getItem(STORAGE_KEY_ORDERS);
+  const orders = stored ? JSON.parse(stored) : initialOrders;
+  return orders.find(o => o.id === safeId) || null;
+};
+
 export const saveOrder = async (orderData) => {
   const orderNumber = `ORD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
   const orderId = orderNumber;
@@ -492,12 +542,15 @@ export const saveOrder = async (orderData) => {
 };
 
 export const updateOrderStatus = async (orderId, newStatus) => {
+  const safeId = String(orderId || '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!safeId) return false;
+
   if (isSupabaseConfigured()) {
     try {
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .or(`order_number.eq.${orderId},id.eq.${orderId}`);
+        .or(`order_number.eq.${safeId},id.eq.${safeId}`);
       if (error) console.error("Supabase updateOrderStatus error:", error);
     } catch (err) {
       console.error("Supabase updateOrderStatus exception:", err);
@@ -506,23 +559,27 @@ export const updateOrderStatus = async (orderId, newStatus) => {
 
   const stored = localStorage.getItem(STORAGE_KEY_ORDERS);
   if (stored) {
-    const orders = JSON.parse(stored).map(o => o.id === orderId ? { ...o, status: newStatus } : o);
+    const orders = JSON.parse(stored).map(o => o.id === safeId ? { ...o, status: newStatus } : o);
     localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(orders));
   }
   return true;
 };
 
 export const updateOrderPayment = async (orderId, paymentStatus, paymentId) => {
+  const safeId = String(orderId || '').trim().replace(/[^a-zA-Z0-9_-]/g, '');
+  const safePaymentId = paymentId ? String(paymentId).trim().replace(/[^a-zA-Z0-9_-]/g, '') : null;
+  if (!safeId) return false;
+
   if (isSupabaseConfigured()) {
     try {
       const { error } = await supabase
         .from('orders')
         .update({
           payment_status: paymentStatus,
-          payment_id: paymentId || null,
+          payment_id: safePaymentId,
           updated_at: new Date().toISOString()
         })
-        .or(`order_number.eq.${orderId},id.eq.${orderId}`);
+        .or(`order_number.eq.${safeId},id.eq.${safeId}`);
       if (error) console.error("Supabase updateOrderPayment error:", error);
     } catch (err) {
       console.error("Supabase updateOrderPayment exception:", err);

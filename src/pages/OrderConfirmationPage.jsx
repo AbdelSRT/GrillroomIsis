@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { CheckCircle2, Clock, MapPin, Phone, ArrowRight, ShoppingBag, Utensils } from 'lucide-react';
 import { CheckCircle2, Clock, MapPin, Phone, ArrowRight, ShoppingBag, Utensils, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { siteConfig } from '../config/siteConfig';
+import { getOrders } from '../lib/dataStore';
 import { getOrderById } from '../lib/dataStore';
 import { formatCurrency, formatDate } from '../lib/formatters';
 import { updatePageSEO } from '../lib/seo';
@@ -17,13 +19,21 @@ export const OrderConfirmationPage = ({ onNavigate }) => {
 
     const loadOrder = async () => {
       const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('orderId');
       const rawOrderId = urlParams.get('orderId');
 
+      const orders = await getOrders();
+      if (orderId) {
+        const found = orders.find(o => o.id === orderId);
       if (rawOrderId) {
         const found = await getOrderById(rawOrderId);
         if (found) {
           setOrder(found);
+        } else if (orders.length > 0) {
+          setOrder(orders[0]);
         }
+      } else if (orders.length > 0) {
+        setOrder(orders[0]);
       }
       setLoading(false);
     };

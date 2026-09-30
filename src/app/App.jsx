@@ -6,6 +6,7 @@ import { CartDrawer } from '../features/cart/CartDrawer';
 import { StickyCartBar } from '../features/order/StickyCartBar';
 import { renderRoute } from './routes';
 import { themeConfig } from '../config/themeConfig';
+import { getAdminToken, verifySession, logoutAdmin } from '../lib/adminAuth';
 
 const CART_STORAGE_KEY = 'isis_cart_items_v1';
 
@@ -21,8 +22,19 @@ export const App = () => {
   });
   const [cartOpen, setCartOpen] = useState(false);
   const [isAdminAuth, setIsAdminAuth] = useState(() => {
-    return localStorage.getItem('isis_admin_auth') === 'true';
+    return Boolean(getAdminToken());
   });
+
+  // Verifieer sessie bij backend
+  useEffect(() => {
+    if (getAdminToken()) {
+      verifySession().then(isValid => {
+        setIsAdminAuth(isValid);
+      });
+    } else {
+      setIsAdminAuth(false);
+    }
+  }, [currentPath]);
 
   // Sync cart to local storage
   useEffect(() => {
@@ -112,8 +124,8 @@ export const App = () => {
     navigateTo('/admin/orders');
   };
 
-  const handleAdminLogout = () => {
-    localStorage.removeItem('isis_admin_auth');
+  const handleAdminLogout = async () => {
+    await logoutAdmin();
     setIsAdminAuth(false);
     navigateTo('/admin');
   };
